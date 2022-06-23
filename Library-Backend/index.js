@@ -4,12 +4,14 @@ var cors = require('cors');
 const UserData = require('./src/model/UserData');
 const BookData =require('./src/model/BookData');
 const jwt =require('jsonwebtoken');
+const path = require('path');
 
+const port = process.env.PORT || 8080;
 var app = express();
 app.use(bodyParser.json());
 app.use(cors());
-
-
+app.use(express.json({ urlencoded: true }));
+app.use(express.static('./dist/library-frontend'));
 
 //  middleware
  function verifyToken(req,res,next){
@@ -34,8 +36,12 @@ app.use(cors());
       next()
 }
 
+app.get('/*', function(req, res) {
+    res.sendFile(path.join(__dirname + '/dist//library-frontend/index.html'))
+   });
+
 // SIGNUP data is taken and store to data base
- app.post('/signup',(req,res)=>{
+ app.post('/api/signup',(req,res)=>{
     let userData=req.body
     
     var user={
@@ -58,7 +64,7 @@ app.use(cors());
 
 // login check the informations
 
-app.post('/login',(req,res)=>{
+app.post('/api/login',(req,res)=>{
   
    let userData=req.body
   
@@ -78,7 +84,7 @@ app.post('/login',(req,res)=>{
     })
 // get book info
 
-app.get('/books',verifyToken ,function(req,res){
+app.get('/api/books',verifyToken ,function(req,res){
     res.header("Access-Control-Allow-Origin","*");
     res.header("Access-Control-Allow-Methods: POST,PATCH, GET, DELETE, PUT, OPTIONS");
     BookData.find()
@@ -87,7 +93,7 @@ app.get('/books',verifyToken ,function(req,res){
     });
 });
 // adding book
-app.post('/insert',verifyToken,function(req,res){
+app.post('/api/insert',verifyToken,function(req,res){
     res.header("Access-Control-Allow-Origin","*");
     res.header("Access-Control-Allow-Methods: POST,PATCH, GET, DELETE, PUT, OPTIONS");
     console.log(req.body);
@@ -103,7 +109,7 @@ app.post('/insert',verifyToken,function(req,res){
 });
 
 // get for update
-app.get('/:id',verifyToken,(req,res)=>{
+app.get('/api/:id',verifyToken,(req,res)=>{
     const id=req.params.id;
     BookData.findOne({"_id":id})
     .then((book)=>{
@@ -112,7 +118,7 @@ app.get('/:id',verifyToken,(req,res)=>{
 })
 
 // update
-app.put('/update',verifyToken,(req,res)=>{
+app.put('/api/update',verifyToken,(req,res)=>{
     console.log(req.body);
     id=req.body._id,
     bookName=req.body.bookName,
@@ -135,7 +141,7 @@ app.put('/update',verifyToken,(req,res)=>{
     })
 })
 // delete
-app.delete('/remove/:id',verifyToken,(req,res)=>{
+app.delete('/api/remove/:id',verifyToken,(req,res)=>{
 
     id = req.params.id;
     
@@ -146,6 +152,6 @@ app.delete('/remove/:id',verifyToken,(req,res)=>{
    });
 });
 
-app.listen(3000,()=>{
+app.listen(port,()=>{
     console.log('server is ready');
 });

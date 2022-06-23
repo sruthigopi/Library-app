@@ -1,6 +1,10 @@
 const mongoose =require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/LibraryDB');
+mongoose.connect('mongodb+srv://userone:userone@cluster0.evox0ui.mongodb.net/LibraryDB?retryWrites=true&w=majority',
+{
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
 
 const Schema=  mongoose.Schema;
 
